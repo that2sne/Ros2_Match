@@ -1,0 +1,10 @@
+/matcher:
+  ros__parameters:
+    max_searching_range: 20
+    base_num: 4.0
+    longit_gap: 5
+    lateral_gap: 2
+    max_missing_distance: 5
+    matching_rate: 70.0
+    unmatching_rate: 96.0
+    duration: 1.0
