@@ -1,7 +1,8 @@
 
 #include "matcher/percept_data.hpp"
 
-PerceptData PerceptData::PerceptData(const erae_perception_msgs::msg::FCW & fcw_msg)
+using ebase::fusion::matcher::PerceptData;
+PerceptData::PerceptData(const erae_perception_msgs::msg::FCW & fcw_msg)
 {
   for (std::size_t obj_index = 0; obj_index < fcw_msg.object_list.size(); obj_index++) {
     // Filtering Object

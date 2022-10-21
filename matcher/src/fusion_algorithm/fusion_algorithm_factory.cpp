@@ -11,17 +11,16 @@ std::shared_ptr<FusionAlgorithmFactory> & FusionAlgorithmFactory::getInstance()
   return instance_;
 }
 
-std::unique_ptr<FusionAlgorithm> FusionAlgorithmFactory::CreateFusionAlgorithm(
-  const std::weak_ptr<MatchInfo> & match_info)
+std::unique_ptr<FusionAlgorithm> FusionAlgorithmFactory::CreateFusionAlgorithm()
 {
   auto fac = FusionAlgorithmFactory::getInstance();
   switch (fac->type_) {
-    case FusionAlgorithmType::kVehicleSpeedFusion:
+    /* case FusionAlgorithmType::kVehicleSpeedFusion:
       return std::make_unique<VehicleSpeedFusion>(match_info);
     case FusionAlgorithmType::kRelativeSpeedFusion:
-      return std::make_unique<RelativeSpeedFusion>(match_info);
+      return std::make_unique<RelativeSpeedFusion>(match_info) */;
     case FusionAlgorithmType::kSimpleFusion:
-      return std::make_unique<SimpleFusion>(match_info);
+      return std::make_unique<SimpleFusion>();
   }
   return nullptr;
 }

@@ -14,7 +14,7 @@ class RadarMathcingCommand : public MatchingCommand
 {
 public:
   RadarMathcingCommand(RadarData && data);
-  virtual void exectue() override;
+  virtual void exectue(FusionData & fd) override;
 
 private:
   RadarData data_;

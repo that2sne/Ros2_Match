@@ -3,7 +3,7 @@
 
 #include "matcher/common.hpp"
 #include "matcher/enum_class.hpp"
-
+#include "matcher/fusion_data.hpp"
 #include <chrono>
 namespace ebase
 {
@@ -15,13 +15,13 @@ struct MatchInfo;
 class FusionAlgorithm
 {
 public:
-  FusionAlgorithm(const std::weak_ptr<MatchInfo> & match_info);
+  FusionAlgorithm();
   ~FusionAlgorithm();
 
-  virtual void TryFusion(SensorType && type) = 0;
+  virtual void TryFusion(FusionData & dt, SensorType && type) = 0;
 
 protected:
-  std::weak_ptr<MatchInfo> match_info_;
+  
 };
 }  // namespace matcher
 }  // namespace fusion

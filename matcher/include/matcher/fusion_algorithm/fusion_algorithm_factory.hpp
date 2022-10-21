@@ -2,9 +2,9 @@
 #define FUSION__MATCHER_FUSION_ALGORITHM_FACTORY_HPP_
 
 #include "fusion_algorithm.hpp"
-#include "relative_speed_fusion.hpp"
+//#include "relative_speed_fusion.hpp"
 #include "simple_fusion.hpp"
-#include "vehicle_speed_fusion.hpp"
+//#include "vehicle_speed_fusion.hpp"
 namespace ebase
 {
 namespace fusion
@@ -14,10 +14,9 @@ namespace matcher
 class FusionAlgorithmFactory
 {
 public:
-  enum class FusionAlgorithmType { kVehicleSpeedFusion, kRelativeSpeedFusion, kSimpleFusion };
+  enum class FusionAlgorithmType { kSimpleFusion };
   static std::shared_ptr<FusionAlgorithmFactory> & getInstance();
-  static std::unique_ptr<FusionAlgorithm> CreateFusionAlgorithm(
-    const std::weak_ptr<MatchInfo> & match_info);
+  static std::unique_ptr<FusionAlgorithm> CreateFusionAlgorithm();
   void SetAlgorithm(FusionAlgorithmType type);
 
 private:

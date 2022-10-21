@@ -7,6 +7,7 @@
 #include <chrono>
 #include <list>
 #include <map>
+
 using namespace std::chrono;
 //#define RAW_DATA
 namespace ebase
@@ -19,18 +20,28 @@ using time_data = std::pair<system_clock::time_point, bool>;
 class SimpleFusion : public FusionAlgorithm
 {
 public:
-  SimpleFusion(const std::weak_ptr<MatchInfo> & match_info);
+  struct Accumulation_data
+  {
+    std::chrono::system_clock::time_point base_time_;
+    std::list<time_data> cam_;
+    std::list<time_data> radar_;
+    Accumulation_data() {
+      base_time_ = std::chrono::system_clock::now();
+    }
+  };
+  SimpleFusion();
   ~SimpleFusion();
 
-  virtual void TryFusion(SensorType && type);
+  virtual void TryFusion(FusionData & dt, SensorType && type);
 
 private:
-  void WriteMatchingInfo(SensorType & type);
-  bool IsAccumulationDone();
-  void UpdateStatus();
+  void WriteMatchingInfo(Accumulation_data & dt, const MatchInfo & mi, const SensorType & type);
+  bool IsAccumulationDone(Accumulation_data & dt);
+  void UpdateStatus(Accumulation_data& dt, MatchInfo& mi);
 
   float GetMatchingRate(const std::list<time_data> & data, int max_matching);
   void EraseData(std::list<time_data> & data, const int keeping_time);
+
   /// @brief  Data accumulation time to calculate the matching rate
   int accumulation_time_;
   int max_radar_matching_;
@@ -40,9 +51,11 @@ private:
   /// is deleted.
   float delete_rate_;
 
-  std::chrono::system_clock::time_point base_time_;
-  std::list<time_data> cam_;
-  std::list<time_data> radar_;
+
+  std::map<int, Accumulation_data> data_;
+  // std::map<int, std::chrono::system_clock::time_point> base_time_;
+  // std::map<int, std::list<time_data>> cam_;
+  // std::map<int, std::list<time_data>> radar_;
   rclcpp::Logger logger_;
 
 #ifdef RAW_DATA

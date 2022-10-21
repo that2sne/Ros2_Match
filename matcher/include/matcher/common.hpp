@@ -7,7 +7,7 @@
 #include "erae_std_msgs/msg/birdeye_view.hpp"
 #include "erae_std_msgs/msg/bounding_box2_d.hpp"
 #include "erae_std_msgs/msg/tracking_object.hpp"
-#include "matcher/fusion_algorithm/fusion_algorithm.hpp"
+//#include "matcher/fusion_algorithm/fusion_algorithm.hpp"
 namespace ebase
 {
 namespace fusion
@@ -15,8 +15,7 @@ namespace fusion
 namespace matcher
 {
 class FusionAlgorithm;
-struct PerceptInfo
-{
+struct PerceptInfo {
   /**
    * @var int class_id
    * Type of detected object: car(0), bus(1), truck(2), pedestroan(10),...
@@ -66,8 +65,7 @@ struct PerceptInfo
  * @date 2022.05.19
  * @version 0.1
  */
-struct RadarInfo
-{
+struct RadarInfo {
   /** @var target_id Unique ID number of detected target */
   int target_id;
   /** @var track_type track_type represent target is tracking or not tracking */
@@ -107,8 +105,7 @@ struct RadarInfo
  * @date 2022.05.19
  * @version 0.1
  */
-struct MatchInfo
-{
+struct MatchInfo {
   // Variables about radar data
   /** @var fusion_idUnique ID of fusioned data */
   unsigned int fusion_id;
@@ -150,7 +147,7 @@ struct MatchInfo
   float unmatch_time;
 
   // For Change FusionMode state
-  std::unique_ptr<FusionAlgorithm> fusion;
+  // std::unique_ptr<FusionAlgorithm> fusion;
   // std::
   //  FusionMode fusion_mode;
   //  float radar_unmatching;
@@ -191,9 +188,9 @@ constexpr float RADAR_PERIOD = 0.05;
 constexpr float CAMERA_PERIOD = 0.033;
 }  // namespace PeriodSensor
 
-using MatchInfoPtrBuffer = VectorData<std::shared_ptr<struct MatchInfo>>;
+/* using MatchInfoPtrBuffer = VectorData<std::shared_ptr<struct MatchInfo>>;
 using PerceptInfoBuffer = VectorData<struct PerceptInfo>;
-using RadarInfoBuffer = VectorData<struct RadarInfo>;
+using RadarInfoBuffer = VectorData<struct RadarInfo>; */
 
 }  // namespace matcher
 }  // namespace fusion
