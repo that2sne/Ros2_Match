@@ -1,11 +1,11 @@
 #include "matcher/match_node.hpp"
 
-#include "matcher/common.hpp"
-#include "matcher/fusion_algorithm/fusion_algorithm_factory.hpp"
-
 #include <functional>
 #include <iostream>
 #include <memory>
+
+#include "matcher/common.hpp"
+#include "matcher/fusion_algorithm/fusion_algorithm_factory.hpp"
 //#include "matcher/matching/percept_matching.hpp"
 //#include "matcher/matching/radar_matching.hpp"
 #include "matcher/parameter/match_parameter.hpp"
@@ -44,12 +44,75 @@ Matcher::Matcher() : EBaseNode("matcher", erae_diag_msgs::msg::ModuleSts::MODULE
 
 void Matcher::SubscribeBboxCallback(const erae_perception_msgs::msg::FCW::SharedPtr msg)
 {
-  PushQueue(std::make_unique<PerceptMathcingCommand>(PerceptData(*msg)));
+  PerceptDataT s(
+    *msg, [](const erae_perception_msgs::msg::FCW & fcw_msg) -> vector<struct PerceptInfo> {
+      vector<struct PerceptInfo> data_;
+      for (std::size_t obj_index = 0; obj_index < fcw_msg.object_list.size(); obj_index++) {
+        // Filtering Object
+        if (
+          fcw_msg.object_list[obj_index].class_obj < 0 ||
+          fcw_msg.object_list[obj_index].class_obj > 3)
+          continue;
+
+        PerceptInfo perception_info_;
+        perception_info_.class_id = fcw_msg.object_list[obj_index].class_obj;
+        perception_info_.obj_id = fcw_msg.object_list[obj_index].id;
+        perception_info_.x = fcw_msg.tracking_list[obj_index].obj_box.x;
+        perception_info_.y = fcw_msg.tracking_list[obj_index].obj_box.y;
+        perception_info_.width = fcw_msg.tracking_list[obj_index].obj_box.width;
+        perception_info_.height = fcw_msg.tracking_list[obj_index].obj_box.height;
+
+        // YJ
+        // For CarMaker
+        perception_info_.longitudinal = fcw_msg.object_list[obj_index].point.x;
+        perception_info_.lateral = fcw_msg.object_list[obj_index].point.y;
+        perception_info_.vertical = fcw_msg.object_list[obj_index].point.z;
+        perception_info_.column = fcw_msg.object_list[obj_index].width;
+        perception_info_.class_id = fcw_msg.object_list[obj_index].class_obj;
+
+        data_.push_back(perception_info_);
+      }
+      return data_;
+    });
+  PushQueue(std::make_unique<PerceptMathcingCommand>(std::move(s)));
 }
 
 void Matcher::SubscribeRadarCallback(const erae_sensor_msgs::msg::MrrInfoArray::SharedPtr msg)
 {
-  PushQueue(std::make_unique<RadarMathcingCommand>(RadarData(*msg)));
+  RadarDataT s(
+    *msg, [](const erae_sensor_msgs::msg::MrrInfoArray & radar_msg) -> vector<struct RadarInfo> {
+      vector<struct RadarInfo> data_;
+      for (int i = 0; i < (int)radar_msg.mrrinfo_array.size(); i++) {
+        // Filtering Object
+        if (
+          radar_msg.mrrinfo_array[i].motion_state < 2 ||
+          radar_msg.mrrinfo_array[i].motion_state > 4) {
+          continue;
+        }
+
+        RadarInfo radar_info;
+
+        radar_info.target_id = radar_msg.mrrinfo_array[i].id;
+        radar_info.longitudinal_x = radar_msg.mrrinfo_array[i].range_x;
+        radar_info.lateral_y = radar_msg.mrrinfo_array[i].range_y;
+        radar_info.u = radar_msg.mrrinfo_array[i].u;
+        radar_info.v = radar_msg.mrrinfo_array[i].v;
+        radar_info.v_x = radar_msg.mrrinfo_array[i].speed_x;
+        radar_info.v_y = radar_msg.mrrinfo_array[i].speed_y;
+
+        // CarMaker
+        // YJ YUN
+        radar_info.vertical_z = radar_msg.mrrinfo_array[i].height;
+        radar_info.width = radar_msg.mrrinfo_array[i].width;
+        radar_info.a_x = radar_msg.mrrinfo_array[i].a_x;
+        radar_info.confidence = radar_msg.mrrinfo_array[i].confidence;
+        radar_info.motion_state = radar_msg.mrrinfo_array[i].motion_state;
+
+        data_.push_back(radar_info);
+      }
+      return data_;
+    });
+  PushQueue(std::make_unique<RadarMathcingCommand>(std::move(s)));
 }
 
 void Matcher::SubscribeEstimateCallback(const erae_fusion_msgs::msg::FusionInfoArray::SharedPtr msg)
@@ -121,3 +184,9 @@ void Matcher::WorkerThread()
     fusion_buf_.CleanUpUnnecessaryData();
   }
 }
+
+/*
+공통 작업
+- msg publisher
+-
+ */

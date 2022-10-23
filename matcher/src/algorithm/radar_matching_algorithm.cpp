@@ -3,7 +3,7 @@
 #include "matcher/parameter/match_param_interface.hpp"
 using ebase::fusion::matcher::RaderMatchingAlgorithm;
 
-void RaderMatchingAlgorithm::Process(FusionData & fd, const RadarData & rd)
+void RaderMatchingAlgorithm::Process(FusionData & fd, const RadarDataT & rd)
 {
   // RCLCPP_DEBUG(logger_, "Start Match Process....Number of Input Data: %d", exec->GetDataCnt());
   if (fd.GetSize() == 0 && rd.GetSize() > 0) {
@@ -25,7 +25,7 @@ void RaderMatchingAlgorithm::AddData(FusionData & fd, const RadarInfo & rd)
   fd += rd;
 }
 
-void RaderMatchingAlgorithm::InitializeData(FusionData & fd, const RadarData & rd)
+void RaderMatchingAlgorithm::InitializeData(FusionData & fd, const RadarDataT & rd)
 {
   for (auto & i : rd) {
     AddData(fd, i);  // same  fd += rd;
@@ -153,7 +153,7 @@ bool RaderMatchingAlgorithm::Update(MatchInfo & mi, const RadarInfo & ri)
   return is_update;
 }
 
-void RaderMatchingAlgorithm::MatchOrUpdate(FusionData & fd, const RadarData & rd)
+void RaderMatchingAlgorithm::MatchOrUpdate(FusionData & fd, const RadarDataT & rd)
 {
   int real_data_cnt = 0;
   // counting number of real data

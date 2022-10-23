@@ -3,7 +3,7 @@
 
 #include "matcher/algorithm/radar_matching_algorithm.hpp"
 using ebase::fusion::matcher::RadarMathcingCommand;
-RadarMathcingCommand::RadarMathcingCommand(RadarData && data) : data_(data) {}
+RadarMathcingCommand::RadarMathcingCommand(RadarDataT && data) : data_(data) {}
 
 void RadarMathcingCommand::exectue(FusionData & fd)
 {

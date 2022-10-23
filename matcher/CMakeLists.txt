@@ -58,9 +58,7 @@ add_executable(match_node
     src/fusion_id_manager.cpp
     src/parameter/match_parameter.cpp
     src/parameter/node_parameter.cpp
-    src/radar_data.cpp
     src/radar_matching_command.cpp
-    src/percept_data.cpp
     src/percept_matching_command
     src/fusion_data.cpp
     src/algorithm/percept_matching_algorithm.cpp

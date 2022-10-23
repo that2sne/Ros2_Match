@@ -3,7 +3,7 @@
 #include "matcher/parameter/match_param_interface.hpp"
 using ebase::fusion::matcher::PerceptMatchingAlgorithm;
 
-void PerceptMatchingAlgorithm::Process(FusionData & fd, const PerceptData & pd)
+void PerceptMatchingAlgorithm::Process(FusionData & fd, const PerceptDataT & pd)
 {
   if (fd.GetSize() == 0 && pd.GetSize() > 0) {
     InitializeData(fd, pd);
@@ -17,13 +17,13 @@ void PerceptMatchingAlgorithm::Process(FusionData & fd, const PerceptData & pd)
   fd.UpdateStatus(GetType());
 }
 
-void PerceptMatchingAlgorithm::AddData(FusionData & fd, const PerceptInfo & pd)
+void PerceptMatchingAlgorithm::AddData(FusionData & fd, const PerceptInfo & pi)
 {
   //데이터 추가.
-  fd += pd;
+  fd += pi;
 }
 
-void PerceptMatchingAlgorithm::InitializeData(FusionData & fd, const PerceptData & pd)
+void PerceptMatchingAlgorithm::InitializeData(FusionData & fd, const PerceptDataT & pd)
 {
   for (auto & i : pd) {
     AddData(fd, i);  // same  fd += pd;
@@ -171,7 +171,7 @@ bool PerceptMatchingAlgorithm::Update(MatchInfo & mi, const PerceptInfo & pi)
   return is_update;
 }
 
-void PerceptMatchingAlgorithm::MatchOrUpdate(FusionData & fd, const PerceptData & pd)
+void PerceptMatchingAlgorithm::MatchOrUpdate(FusionData & fd, const PerceptDataT & pd)
 {
   int real_data_cnt = 0;
   // counting number of real data

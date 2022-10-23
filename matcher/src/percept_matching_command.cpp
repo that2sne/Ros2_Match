@@ -3,7 +3,7 @@
 
 #include "matcher/algorithm/percept_matching_algorithm.hpp"
 using ebase::fusion::matcher::PerceptMathcingCommand;
-PerceptMathcingCommand::PerceptMathcingCommand(PerceptData && data) : data_(data) {}
+PerceptMathcingCommand::PerceptMathcingCommand(PerceptDataT && data) : data_(data) {}
 
 void PerceptMathcingCommand::exectue(FusionData & fd)
 {

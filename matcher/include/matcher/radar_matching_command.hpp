@@ -1,8 +1,8 @@
 #ifndef FUSION__MATCHER_RADAR_MATCHING_COMMAND_HPP_
 #define FUSION__MATCHER_RADAR_MATCHING_COMMAND_HPP_
 
+#include "fusion_element.hpp"
 #include "matching_command.hpp"
-#include "radar_data.hpp"
 
 namespace ebase
 {
@@ -13,11 +13,11 @@ namespace matcher
 class RadarMathcingCommand : public MatchingCommand
 {
 public:
-  RadarMathcingCommand(RadarData && data);
+  RadarMathcingCommand(RadarDataT && data);
   virtual void exectue(FusionData & fd) override;
 
 private:
-  RadarData data_;
+  RadarDataT data_;
 };
 }  // namespace matcher
 }  // namespace fusion
