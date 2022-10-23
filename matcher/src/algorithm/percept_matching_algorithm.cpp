@@ -13,6 +13,8 @@ void PerceptMatchingAlgorithm::Process(FusionData & fd, const PerceptData & pd)
   } else {
     // RCLCPP_ERROR(logger_, "There is no any input data...");
   }
+
+  fd.UpdateStatus(GetType());
 }
 
 void PerceptMatchingAlgorithm::AddData(FusionData & fd, const PerceptInfo & pd)

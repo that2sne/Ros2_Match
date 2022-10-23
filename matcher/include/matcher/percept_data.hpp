@@ -1,6 +1,7 @@
 #ifndef FUSION__MATCHER_PECEPT_DATA_HPP_
 #define FUSION__MATCHER_PECEPT_DATA_HPP_
 
+#include <functional>
 #include <vector>
 
 #include "common.hpp"
@@ -13,6 +14,7 @@ namespace fusion
 namespace matcher
 {
 using std::vector;
+
 class PerceptData
 {
 private:

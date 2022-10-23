@@ -139,3 +139,9 @@ void FusionData::CleanUpUnnecessaryData()
     }
   }
 }
+
+void FusionData::UpdateStatus(SensorType && type)
+{
+  // asd
+  fa_->TryFusion(*this, std::move(type));
+}

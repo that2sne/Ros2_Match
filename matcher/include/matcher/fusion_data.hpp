@@ -6,6 +6,7 @@
 #include "common.hpp"
 #include "erae_fusion_msgs/msg/draw_info.hpp"
 #include "erae_fusion_msgs/msg/fusion_info_array.hpp"
+#include "fusion_algorithm/fusion_algorithm.hpp"
 #include "fusion_id_manager.hpp"
 namespace ebase
 {
@@ -21,9 +22,10 @@ class FusionData
 public:
   vector<struct MatchInfo> data_;
   FusionIdManager fusion_id_;
+  std::unique_ptr<FusionAlgorithm> fa_;
 
 public:
-  // FusionData에 Radar 데이터를 추가 하는 행위
+  void UpdateStatus(SensorType && type);
   size_t GetSize() { return data_.size(); }
   FusionData & operator+=(const RadarInfo & rd);    // 신규 추가
   FusionData & operator+=(const PerceptInfo & rd);  // 신규 추가
@@ -73,7 +75,6 @@ public:
   decltype(data_.end()) end() { return data_.end(); }
 
   void Clear() { data_.clear(); }
-  // pimpl로 퓨전impl을 소유함. 그리고 퓨전
 };
 }  // namespace matcher
 }  // namespace fusion

@@ -16,6 +16,7 @@ void RaderMatchingAlgorithm::Process(FusionData & fd, const RadarData & rd)
   } else {
     // RCLCPP_ERROR(logger_, "There is no any input data...");
   }
+  fd.UpdateStatus(GetType());
 }
 
 void RaderMatchingAlgorithm::AddData(FusionData & fd, const RadarInfo & rd)
