@@ -1,8 +1,13 @@
 #include "matcher/fusion_data.hpp"
 
 #include "matcher/enum_class.hpp"
+#include "matcher/fusion_algorithm/simple_fusion.hpp"
 using ebase::fusion::matcher::FusionData;
 
+FusionData::FusionData()
+{
+  fa_ = std::make_unique<SimpleFusion>();
+}
 FusionData & FusionData::operator+=(const RadarInfo & rd)
 {
   // FusionData에 Radar 데이터를 추가 하는 행위
@@ -85,6 +90,7 @@ FusionData & FusionData::operator+=(const PerceptInfo & rd)
   temporary_match_info.match_flag = false;
   temporary_match_info.unmatch_time = 0;
 
+ 
   // temporary_match_info.fusion =
   // std::move(FusionAlgorithmFactory::CreateFusionAlgorithm(temporary_match_info));
   // temporary_match_info.fusion->Init();
@@ -133,7 +139,9 @@ void FusionData::CleanUpUnnecessaryData()
   for (int match_index = 0; match_index < (int)data_.size(); match_index++) {
     if (data_[match_index].track_mode == TrackMode::kDelete) {
       vector<MatchInfo>::iterator iter = data_.begin();
+      fa_->Delete((*(iter + match_index)).fusion_id);
       fusion_id_.ResetId((*(iter + match_index)).fusion_id);
+
       data_.erase(iter + match_index);
       match_index--;
     }
@@ -142,6 +150,5 @@ void FusionData::CleanUpUnnecessaryData()
 
 void FusionData::UpdateStatus(SensorType && type)
 {
-  // asd
   fa_->TryFusion(*this, std::move(type));
 }

@@ -25,6 +25,7 @@ public:
   std::unique_ptr<FusionAlgorithm> fa_;
 
 public:
+  FusionData();
   void UpdateStatus(SensorType && type);
   size_t GetSize() { return data_.size(); }
   FusionData & operator+=(const RadarInfo & rd);    // 신규 추가
@@ -35,7 +36,7 @@ public:
     auto msg = erae_fusion_msgs::msg::DrawInfo();
     // auto msg = erae_fusion_msgs::msg::FusionInfoArray();
     erae_fusion_msgs::msg::FusionInfo match_data;
-    for (int match_index = 0; match_index < data_.size(); match_index++) {
+    for (size_t match_index = 0; match_index < data_.size(); match_index++) {
       match_data.fusion_id = data_[match_index].fusion_id;
       match_data.class_id = data_[match_index].class_id;
 

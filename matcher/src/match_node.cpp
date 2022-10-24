@@ -1,16 +1,15 @@
 #include "matcher/match_node.hpp"
 
+#include "matcher/common.hpp"
+#include "matcher/fusion_algorithm/fusion_algorithm_factory.hpp"
+
 #include <functional>
 #include <iostream>
 #include <memory>
-
-#include "matcher/common.hpp"
-#include "matcher/fusion_algorithm/fusion_algorithm_factory.hpp"
 //#include "matcher/matching/percept_matching.hpp"
 //#include "matcher/matching/radar_matching.hpp"
+#include "matcher/command.hpp"
 #include "matcher/parameter/match_parameter.hpp"
-#include "matcher/percept_matching_command.hpp"
-#include "matcher/radar_matching_command.hpp"
 using namespace ebase::fusion::matcher;
 using namespace std;
 using std::placeholders::_1;
@@ -74,7 +73,7 @@ void Matcher::SubscribeBboxCallback(const erae_perception_msgs::msg::FCW::Shared
       }
       return data_;
     });
-  PushQueue(std::make_unique<PerceptMathcingCommand>(std::move(s)));
+  PushQueue(std::make_unique<PerceptMathcingCommandT>(std::move(s)));
 }
 
 void Matcher::SubscribeRadarCallback(const erae_sensor_msgs::msg::MrrInfoArray::SharedPtr msg)
@@ -112,7 +111,7 @@ void Matcher::SubscribeRadarCallback(const erae_sensor_msgs::msg::MrrInfoArray::
       }
       return data_;
     });
-  PushQueue(std::make_unique<RadarMathcingCommand>(std::move(s)));
+  PushQueue(std::make_unique<RadarMathcingCommandT>(std::move(s)));
 }
 
 void Matcher::SubscribeEstimateCallback(const erae_fusion_msgs::msg::FusionInfoArray::SharedPtr msg)
@@ -184,9 +183,3 @@ void Matcher::WorkerThread()
     fusion_buf_.CleanUpUnnecessaryData();
   }
 }
-
-/*
-공통 작업
-- msg publisher
--
- */

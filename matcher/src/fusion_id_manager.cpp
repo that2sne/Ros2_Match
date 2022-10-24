@@ -4,7 +4,10 @@
 #include <stdexcept>
 
 using namespace ebase::fusion::matcher;
-FusionIdManager::FusionIdManager() : last_index_(-1) { id_.reset(0); }
+FusionIdManager::FusionIdManager() : last_index_(-1)
+{
+  id_.reset(0);
+}
 
 unsigned int FusionIdManager::GetId()
 {
@@ -33,4 +36,7 @@ unsigned int FusionIdManager::GetId()
   return last_index_;
 }
 
-void FusionIdManager::ResetId(unsigned int id) { id_.set(id, false); }
+void FusionIdManager::ResetId(unsigned int id)
+{
+  id_.set(id, false);
+}

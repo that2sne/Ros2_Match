@@ -58,11 +58,9 @@ add_executable(match_node
     src/fusion_id_manager.cpp
     src/parameter/match_parameter.cpp
     src/parameter/node_parameter.cpp
-    src/radar_matching_command.cpp
-    src/percept_matching_command
     src/fusion_data.cpp
-    src/algorithm/percept_matching_algorithm.cpp
-    src/algorithm/radar_matching_algorithm.cpp)
+    src/algorithm/percept_matching.cpp
+    src/algorithm/radar_matching.cpp)
 ament_target_dependencies(match_node rclcpp visualization_msgs OpenCV cv_bridge sensor_msgs erae_std_msgs erae_sensor_msgs std_msgs
   erae_perception_msgs erae_fusion_msgs erae_diag_msgs ebase_node erae_vehicle_msgs)
 

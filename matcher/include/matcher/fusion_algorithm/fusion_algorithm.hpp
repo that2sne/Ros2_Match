@@ -21,6 +21,7 @@ public:
   ~FusionAlgorithm();
 
   virtual void TryFusion(FusionData & dt, SensorType && type) = 0;
+  virtual void Delete(int fusion_id) = 0;
 
 protected:
 };

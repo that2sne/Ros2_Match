@@ -32,7 +32,8 @@ public:
   SimpleFusion();
   ~SimpleFusion();
 
-  virtual void TryFusion(FusionData & dt, SensorType && type);
+  virtual void TryFusion(FusionData & dt, SensorType && type) override;
+  virtual void Delete(int fusion_id) override;
 
 private:
   void WriteMatchingInfo(Accumulation_data & dt, const MatchInfo & mi, const SensorType & type);
@@ -50,12 +51,8 @@ private:
   /// @brief Matching rate to delete the object. When the matching rate falls below delete_rate, it
   /// is deleted.
   float delete_rate_;
-
-
   std::map<int, Accumulation_data> data_;
-  // std::map<int, std::chrono::system_clock::time_point> base_time_;
-  // std::map<int, std::list<time_data>> cam_;
-  // std::map<int, std::list<time_data>> radar_;
+
   rclcpp::Logger logger_;
 
 #ifdef RAW_DATA

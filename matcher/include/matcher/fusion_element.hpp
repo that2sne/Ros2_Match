@@ -5,9 +5,9 @@
 #include <vector>
 
 #include "common.hpp"
+#include "enum_class.hpp"
 #include "erae_perception_msgs/msg/fcw.hpp"
 #include "erae_sensor_msgs/msg/mrr_info_array.hpp"
-
 namespace ebase
 {
 namespace fusion
@@ -18,12 +18,21 @@ using std::vector;
 template <typename T, typename V>
 class FusionElement
 {
-private:
+public:
   vector<T> data_;
 
 public:
   FusionElement(const V & rhs, std::function<vector<T>(const V &)> func);
   size_t GetSize() const { return data_.size(); }
+  SensorType GetType() const
+  {
+    if (std::is_same<T, struct PerceptInfo>::value) {
+      return SensorType::kCameraData;
+    } else if (std::is_same<T, struct RadarInfo>::value) {
+      return SensorType::kRadarData;
+    }
+    return SensorType::kError;
+  }
   decltype(data_.cbegin()) begin() const { return data_.cbegin(); }
   decltype(data_.cend()) end() const { return data_.cend(); }
 
@@ -34,6 +43,7 @@ template <typename T, typename V>
 FusionElement<T, V>::FusionElement(const V & rhs, std::function<vector<T>(const V &)> func)
 {
   data_ = std::move(func(rhs));
+  
 }
 using PerceptDataT = FusionElement<struct PerceptInfo, erae_perception_msgs::msg::FCW>;
 using RadarDataT = FusionElement<struct RadarInfo, erae_sensor_msgs::msg::MrrInfoArray>;

@@ -27,13 +27,24 @@ void SimpleFusion::TryFusion(FusionData & fd, SensorType && type)
 {
   for (auto & mi : fd) {
     // data_[i.fusion_id] = empty 면 초기화
+    if (data_.find(mi.fusion_id) == data_.end()) {
+      data_[mi.fusion_id].base_time_ = std::chrono::system_clock::now();
+      RCLCPP_INFO(logger_, "[%d] added R[%d] : C [%d]", mi.fusion_id, mi.radar_id, mi.cam_id);
+    }
     WriteMatchingInfo(data_[mi.fusion_id], mi, type);
     if (IsAccumulationDone(data_[mi.fusion_id])) {
       UpdateStatus(data_[mi.fusion_id], mi);
     }
   }
 }
-
+void SimpleFusion::Delete(int fusion_id)
+{
+  auto it = data_.find(fusion_id);
+  if (it != data_.end()) {
+    data_.erase(it);
+    RCLCPP_INFO(logger_, "[%d] deleted.", fusion_id);
+  }
+}
 //
 void SimpleFusion::WriteMatchingInfo(
   Accumulation_data & dt, const MatchInfo & mi, const SensorType & type)
@@ -77,6 +88,7 @@ void SimpleFusion::UpdateStatus(Accumulation_data & dt, MatchInfo & mi)
     RCLCPP_INFO(logger_, "Matching rate : Radar[%f], Cam[%f]", radar_rate, cam_rate);
   }
 #endif
+  //RCLCPP_INFO(logger_, "Matching rate : Radar[%f], Cam[%f]", radar_rate, cam_rate);
   // RCLCPP_INFO(logger_, "Matching rate : Radar[%d], Cam[%d]", dt.radar_.size(), dt.cam_.size());
   if (
     radar_rate >= accept_rate_ && cam_rate >= accept_rate_ &&
@@ -84,19 +96,19 @@ void SimpleFusion::UpdateStatus(Accumulation_data & dt, MatchInfo & mi)
   {
     mi.sensor_type = SensorType::kFusionData;
     dt.base_time_ = std::chrono::system_clock::now() - chrono::milliseconds(500);
-    RCLCPP_INFO(logger_, "Changed to fusion state.");
+    RCLCPP_INFO(logger_, "[%d] Changed to fusion state.", mi.fusion_id);
   } else if (
     radar_rate < accept_rate_ && cam_rate < accept_rate_ &&
     mi.sensor_type == SensorType::kFusionData)
   {
     dt.base_time_ = std::chrono::system_clock::now() - chrono::milliseconds(500);
     mi.sensor_type = (radar_rate > cam_rate) ? SensorType::kRadarData : SensorType::kCameraData;
-    RCLCPP_INFO(logger_, "The fusion state is broken.");
+    RCLCPP_INFO(logger_, "[%d] The fusion state is broken.", mi.fusion_id);
   }
 
   if (radar_rate < delete_rate_ && cam_rate < delete_rate_) {
     mi.track_mode = TrackMode::kDelete;  // 삭제를 의미함.
-    RCLCPP_INFO(logger_, "Will be deleted.");
+    RCLCPP_INFO(logger_, "[%d] Will be deleted.", mi.fusion_id);
   }
 }
 

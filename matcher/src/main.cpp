@@ -1,6 +1,6 @@
 #include "matcher/match_node.hpp"
-#include "matcher/parameter/node_parameter_factory.hpp"
 #include "matcher/parameter/match_parameter.hpp"
+#include "matcher/parameter/node_parameter_factory.hpp"
 
 void termination_handler(int signum)
 {
