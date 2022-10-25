@@ -8,7 +8,8 @@
 using namespace ebase::fusion::matcher;
 using namespace std;
 using namespace chrono;
-SimpleFusion::SimpleFusion() : logger_(rclcpp::get_logger(string("Fusion ")))
+SimpleFusion::SimpleFusion(const rclcpp::Clock::SharedPtr & clock, const rclcpp::Logger & logger)
+: clock_(clock), logger_(logger)
 {
   accumulation_time_ = 1000;
   max_cam_matching_ = accumulation_time_ / (PeriodSensor::CAMERA_PERIOD * 1000);
@@ -88,8 +89,8 @@ void SimpleFusion::UpdateStatus(Accumulation_data & dt, MatchInfo & mi)
     RCLCPP_INFO(logger_, "Matching rate : Radar[%f], Cam[%f]", radar_rate, cam_rate);
   }
 #endif
-  //RCLCPP_INFO(logger_, "Matching rate : Radar[%f], Cam[%f]", radar_rate, cam_rate);
-  // RCLCPP_INFO(logger_, "Matching rate : Radar[%d], Cam[%d]", dt.radar_.size(), dt.cam_.size());
+  // RCLCPP_INFO(logger_, "Matching rate : Radar[%f], Cam[%f]", radar_rate, cam_rate);
+  //  RCLCPP_INFO(logger_, "Matching rate : Radar[%d], Cam[%d]", dt.radar_.size(), dt.cam_.size());
   if (
     radar_rate >= accept_rate_ && cam_rate >= accept_rate_ &&
     mi.sensor_type != SensorType::kFusionData)

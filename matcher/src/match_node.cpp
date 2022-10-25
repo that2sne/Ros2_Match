@@ -34,8 +34,10 @@ Matcher::Matcher() : EBaseNode("matcher", erae_diag_msgs::msg::ModuleSts::MODULE
   subscriber_scenario_status = this->create_subscription<std_msgs::msg::String>(
     "sim_status", 10, std::bind(&Matcher::SubscribeFromCmBridgeScenarioStatusCallback, this, _1));
 
-  FusionAlgorithmFactory::getInstance()->SetAlgorithm(
-    FusionAlgorithmFactory::FusionAlgorithmType::kSimpleFusion);
+  radar_matching_ = std::make_shared<RadarMatching>(this->get_clock(), this->get_logger());
+  percept_matching_ = std::make_shared<PerceptMatching>(this->get_clock(), this->get_logger());
+  FusionAlgorithmFactory::Set(
+    std::make_shared<SimpleFusion>(this->get_clock(), this->get_logger()));
 
   // Thread initialization
   thread_handle_ = std::thread(&Matcher::WorkerThread, this);
@@ -43,7 +45,7 @@ Matcher::Matcher() : EBaseNode("matcher", erae_diag_msgs::msg::ModuleSts::MODULE
 
 void Matcher::SubscribeBboxCallback(const erae_perception_msgs::msg::FCW::SharedPtr msg)
 {
-  PerceptDataT s(
+  PerceptData s(
     *msg, [](const erae_perception_msgs::msg::FCW & fcw_msg) -> vector<struct PerceptInfo> {
       vector<struct PerceptInfo> data_;
       for (std::size_t obj_index = 0; obj_index < fcw_msg.object_list.size(); obj_index++) {
@@ -73,12 +75,12 @@ void Matcher::SubscribeBboxCallback(const erae_perception_msgs::msg::FCW::Shared
       }
       return data_;
     });
-  PushQueue(std::make_unique<PerceptMathcingCommandT>(std::move(s)));
+  PushQueue(std::make_unique<PerceptMathcingCommand>(std::move(s), percept_matching_));
 }
 
 void Matcher::SubscribeRadarCallback(const erae_sensor_msgs::msg::MrrInfoArray::SharedPtr msg)
 {
-  RadarDataT s(
+  RadarData s(
     *msg, [](const erae_sensor_msgs::msg::MrrInfoArray & radar_msg) -> vector<struct RadarInfo> {
       vector<struct RadarInfo> data_;
       for (int i = 0; i < (int)radar_msg.mrrinfo_array.size(); i++) {
@@ -111,7 +113,7 @@ void Matcher::SubscribeRadarCallback(const erae_sensor_msgs::msg::MrrInfoArray::
       }
       return data_;
     });
-  PushQueue(std::make_unique<RadarMathcingCommandT>(std::move(s)));
+  PushQueue(std::make_unique<RadarMathcingCommand>(std::move(s), radar_matching_));
 }
 
 void Matcher::SubscribeEstimateCallback(const erae_fusion_msgs::msg::FusionInfoArray::SharedPtr msg)

@@ -1,11 +1,11 @@
 #ifndef FUSION__MATCHER_FUSION_ALGORITHM_HPP_
 #define FUSION__MATCHER_FUSION_ALGORITHM_HPP_
 
-#include <chrono>
-
 #include "matcher/common.hpp"
 #include "matcher/enum_class.hpp"
 #include "matcher/fusion_data.hpp"
+
+#include <chrono>
 namespace ebase
 {
 namespace fusion

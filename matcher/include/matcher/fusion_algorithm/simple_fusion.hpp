@@ -25,11 +25,9 @@ public:
     std::chrono::system_clock::time_point base_time_;
     std::list<time_data> cam_;
     std::list<time_data> radar_;
-    Accumulation_data() {
-      base_time_ = std::chrono::system_clock::now();
-    }
+    Accumulation_data() { base_time_ = std::chrono::system_clock::now(); }
   };
-  SimpleFusion();
+  SimpleFusion(const rclcpp::Clock::SharedPtr & clock, const rclcpp::Logger & logger);
   ~SimpleFusion();
 
   virtual void TryFusion(FusionData & dt, SensorType && type) override;
@@ -38,7 +36,7 @@ public:
 private:
   void WriteMatchingInfo(Accumulation_data & dt, const MatchInfo & mi, const SensorType & type);
   bool IsAccumulationDone(Accumulation_data & dt);
-  void UpdateStatus(Accumulation_data& dt, MatchInfo& mi);
+  void UpdateStatus(Accumulation_data & dt, MatchInfo & mi);
 
   float GetMatchingRate(const std::list<time_data> & data, int max_matching);
   void EraseData(std::list<time_data> & data, const int keeping_time);
@@ -54,6 +52,7 @@ private:
   std::map<int, Accumulation_data> data_;
 
   rclcpp::Logger logger_;
+  rclcpp::Clock::SharedPtr clock_;
 
 #ifdef RAW_DATA
   std::map<int, int> debug_total_;

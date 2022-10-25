@@ -1,13 +1,13 @@
 #ifndef FUSION__MATCHER_FUSION_ELEMENT_HPP_
 #define FUSION__MATCHER_FUSION_ELEMENT_HPP_
 
-#include <functional>
-#include <vector>
-
 #include "common.hpp"
 #include "enum_class.hpp"
 #include "erae_perception_msgs/msg/fcw.hpp"
 #include "erae_sensor_msgs/msg/mrr_info_array.hpp"
+
+#include <functional>
+#include <vector>
 namespace ebase
 {
 namespace fusion
@@ -15,7 +15,7 @@ namespace fusion
 namespace matcher
 {
 using std::vector;
-template <typename T, typename V>
+template<typename T, typename V>
 class FusionElement
 {
 public:
@@ -39,14 +39,13 @@ public:
   decltype(data_.begin()) begin() { return data_.begin(); }
   decltype(data_.end()) end() { return data_.end(); }
 };
-template <typename T, typename V>
+template<typename T, typename V>
 FusionElement<T, V>::FusionElement(const V & rhs, std::function<vector<T>(const V &)> func)
 {
   data_ = std::move(func(rhs));
-  
 }
-using PerceptDataT = FusionElement<struct PerceptInfo, erae_perception_msgs::msg::FCW>;
-using RadarDataT = FusionElement<struct RadarInfo, erae_sensor_msgs::msg::MrrInfoArray>;
+using PerceptData = FusionElement<struct PerceptInfo, erae_perception_msgs::msg::FCW>;
+using RadarData = FusionElement<struct RadarInfo, erae_sensor_msgs::msg::MrrInfoArray>;
 
 }  // namespace matcher
 }  // namespace fusion

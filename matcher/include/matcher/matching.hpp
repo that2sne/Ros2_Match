@@ -1,8 +1,11 @@
 #ifndef FUSION__MATCHER_MATCHING_HPP_
 #define FUSION__MATCHER_MATCHING_HPP_
+#include "matcher/fusion_algorithm/fusion_algorithm_factory.hpp"
 #include "matcher/fusion_data.hpp"
 #include "matcher/fusion_element.hpp"
+#include <rclcpp/rclcpp.hpp>
 
+#include <functional>
 namespace ebase
 {
 namespace fusion
@@ -30,7 +33,7 @@ public:
     } else {
       // RCLCPP_ERROR(logger_, "There is no any input data...");
     }
-    fd.UpdateStatus(input_data.GetType());
+    FusionAlgorithmFactory::GetInstance()->TryFusion(fd, input_data.GetType());
   }
 
 private:
@@ -45,33 +48,28 @@ private:
 };
 class RadarMatching
 {
+  IMatch<RadarData, RadarInfo> match_funs_;
+  rclcpp::Clock::SharedPtr clock_;
+  rclcpp::Logger logger_;
+
 public:
-  static bool Update(MatchInfo & mi, const RadarInfo & input_info);
-  static bool Match(MatchInfo & mi, const RadarInfo & input_info, float & min_distance);
-
-  void Process(FusionData & fd, const RadarDataT & input_data)
-  {
-    IMatch<RadarDataT, RadarInfo> fn;
-    fn.Update = &RadarMatching::Update;
-    fn.Match = &RadarMatching::Match;
-
-    Matching::Process(fd, input_data, fn);
-  }
+  RadarMatching(const rclcpp::Clock::SharedPtr & clock, const rclcpp::Logger & logger);
+  bool Update(MatchInfo & mi, const RadarInfo & input_info);
+  bool Match(MatchInfo & mi, const RadarInfo & input_info, float & min_distance);
+  void Process(FusionData & fd, const RadarData & input_data);
 };
 
 class PerceptMatching
 {
-public:
-  static bool Update(MatchInfo & mi, const PerceptInfo & input_info);
-  static bool Match(MatchInfo & mi, const PerceptInfo & input_info, float & min_distance);
-  void Process(FusionData & fd, const PerceptDataT & input_data)
-  {
-    IMatch<PerceptDataT, PerceptInfo> fn;
-    fn.Update = &PerceptMatching::Update;
-    fn.Match = &PerceptMatching::Match;
+  IMatch<PerceptData, PerceptInfo> match_funs_;
+  rclcpp::Clock::SharedPtr clock_;
+  rclcpp::Logger logger_;
 
-    Matching::Process(fd, input_data, fn);
-  }
+public:
+  PerceptMatching(const rclcpp::Clock::SharedPtr & clock, const rclcpp::Logger & logger);
+  bool Update(MatchInfo & mi, const PerceptInfo & input_info);
+  bool Match(MatchInfo & mi, const PerceptInfo & input_info, float & min_distance);
+  void Process(FusionData & fd, const PerceptData & input_data);
 };
 
 template<typename T, typename I>
@@ -140,16 +138,8 @@ template<typename T>
 void Matching::InitializeData(FusionData & fd, const T & input_data)
 {
   for (auto & i : input_data) {
-    AddData(fd, i);  // same  fd += pd;
+    AddData(fd, i);
   }
-/*   for (auto & mi : fd) {
-    float match_box_area = (float)(mi.bbox.width * mi.bbox.height);
-    //float percept_box_area = (float)(pi.width * pi.height);
-    printf("match_box_area %f\n", match_box_area);
-    fflush(stdout);
-  }
- */
-   
 }
 template<typename T>
 void Matching::AddData(FusionData & fd, const T & input_info)

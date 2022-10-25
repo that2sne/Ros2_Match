@@ -14,13 +14,12 @@ namespace matcher
 class FusionAlgorithmFactory
 {
 public:
-  enum class FusionAlgorithmType { kSimpleFusion };
-  static std::shared_ptr<FusionAlgorithmFactory> & getInstance();
-  static std::unique_ptr<FusionAlgorithm> CreateFusionAlgorithm();
-  void SetAlgorithm(FusionAlgorithmType type);
+  // enum class FusionAlgorithmType { kSimpleFusion };
+  static std::shared_ptr<FusionAlgorithm> & GetInstance();
+  static void Set(std::shared_ptr<FusionAlgorithm> && rhs);
 
 private:
-  FusionAlgorithmType type_;
+  static std::shared_ptr<FusionAlgorithm> algo_;
 };
 }  // namespace matcher
 }  // namespace fusion

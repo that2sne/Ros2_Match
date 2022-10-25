@@ -1,31 +1,14 @@
 #include "matcher/fusion_algorithm/fusion_algorithm_factory.hpp"
 
 using namespace ebase::fusion::matcher;
+std::shared_ptr<FusionAlgorithm> FusionAlgorithmFactory::algo_;
 
-std::shared_ptr<FusionAlgorithmFactory> & FusionAlgorithmFactory::getInstance()
+std::shared_ptr<FusionAlgorithm> & FusionAlgorithmFactory::GetInstance()
 {
-  static std::shared_ptr<FusionAlgorithmFactory> instance_;
-  if (instance_ == nullptr) {
-    instance_.reset(new FusionAlgorithmFactory());
-  }
-  return instance_;
+  return algo_;
 }
 
-std::unique_ptr<FusionAlgorithm> FusionAlgorithmFactory::CreateFusionAlgorithm()
+void FusionAlgorithmFactory::Set(std::shared_ptr<FusionAlgorithm> && rhs)
 {
-  auto fac = FusionAlgorithmFactory::getInstance();
-  switch (fac->type_) {
-    /* case FusionAlgorithmType::kVehicleSpeedFusion:
-      return std::make_unique<VehicleSpeedFusion>(match_info);
-    case FusionAlgorithmType::kRelativeSpeedFusion:
-      return std::make_unique<RelativeSpeedFusion>(match_info) */;
-    case FusionAlgorithmType::kSimpleFusion:
-      return std::make_unique<SimpleFusion>();
-  }
-  return nullptr;
-}
-
-void FusionAlgorithmFactory::SetAlgorithm(FusionAlgorithmType type)
-{
-  type_ = type;
+  algo_ = std::move(rhs);
 }

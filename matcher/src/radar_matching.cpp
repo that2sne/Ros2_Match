@@ -1,11 +1,26 @@
-#include "matcher/algorithm/matching.hpp"
+#include "matcher/matching.hpp"
 #include "matcher/parameter/match_param_interface.hpp"
 
 using ebase::fusion::matcher::IMatch;
 using ebase::fusion::matcher::Matching;
-using ebase::fusion::matcher::RadarDataT;
+using ebase::fusion::matcher::RadarData;
 using ebase::fusion::matcher::RadarInfo;
 using ebase::fusion::matcher::RadarMatching;
+
+RadarMatching::RadarMatching(const rclcpp::Clock::SharedPtr & clock, const rclcpp::Logger & logger)
+: clock_(clock), logger_(logger)
+{
+  match_funs_.Update = std::bind(
+    &RadarMatching::Update, std::ref(*this), std::placeholders::_1, std::placeholders::_2);
+  match_funs_.Match = std::bind(
+    &RadarMatching::Match, std::ref(*this), std::placeholders::_1, std::placeholders::_2,
+    std::placeholders::_3);
+}
+
+void RadarMatching::Process(FusionData & fd, const RadarData & input_data)
+{
+  Matching::Process(fd, input_data, match_funs_);
+}
 
 bool RadarMatching::Match(MatchInfo & mi, const RadarInfo & ri, float & min_distance)
 {
@@ -24,7 +39,7 @@ bool RadarMatching::Match(MatchInfo & mi, const RadarInfo & ri, float & min_dist
   int od_center_y = (int)mi.bbox.y + (int)(mi.bbox.height / (float)2 + 0.5);
 
   if (mi.radar_id == ri.target_id) {
-  //if (mi.cam_id == ri.target_id) {
+    // if (mi.cam_id == ri.target_id) {
     min_distance = -1;
 
     mi.radar_id = ri.target_id;
@@ -88,7 +103,9 @@ bool RadarMatching::Match(MatchInfo & mi, const RadarInfo & ri, float & min_dist
       // @Debug
       mi.radar_longitudinal = ri.longitudinal_x;
       mi.radar_lateral = ri.lateral_y;
-      printf("[Fusion %d]New matching has occurred. R:%d C:%d\n", mi.fusion_id, ri.target_id, mi.cam_id); fflush(stdout);
+      printf(
+        "[Fusion %d]New matching has occurred. R:%d C:%d\n", mi.fusion_id, ri.target_id, mi.cam_id);
+      fflush(stdout);
     }
   }
   return is_match;

@@ -1,36 +1,29 @@
-#include "matcher/algorithm/percept_matching_algorithm.hpp"
-
+#include "matcher/matching.hpp"
+#include "matcher/fusion_data.hpp"
 #include "matcher/parameter/match_param_interface.hpp"
-using ebase::fusion::matcher::PerceptMatchingAlgorithm;
+using ebase::fusion::matcher::IMatch;
+using ebase::fusion::matcher::Matching;
+using ebase::fusion::matcher::PerceptData;
+using ebase::fusion::matcher::PerceptInfo;
+using ebase::fusion::matcher::PerceptMatching;
 
-void PerceptMatchingAlgorithm::Process(FusionData & fd, const PerceptDataT & pd)
+PerceptMatching::PerceptMatching(
+  const rclcpp::Clock::SharedPtr & clock, const rclcpp::Logger & logger)
+: clock_(clock), logger_(logger)
 {
-  if (fd.GetSize() == 0 && pd.GetSize() > 0) {
-    InitializeData(fd, pd);
-
-  } else if (fd.GetSize() != 0 && pd.GetSize() > 0) {
-    MatchOrUpdate(fd, pd);
-  } else {
-    // RCLCPP_ERROR(logger_, "There is no any input data...");
-  }
-
-  fd.UpdateStatus(GetType());
+  match_funs_.Update = std::bind(
+    &PerceptMatching::Update, std::ref(*this), std::placeholders::_1, std::placeholders::_2);
+  match_funs_.Match = std::bind(
+    &PerceptMatching::Match, std::ref(*this), std::placeholders::_1, std::placeholders::_2,
+    std::placeholders::_3);
 }
 
-void PerceptMatchingAlgorithm::AddData(FusionData & fd, const PerceptInfo & pi)
+void PerceptMatching::Process(FusionData & fd, const PerceptData & input_data)
 {
-  //데이터 추가.
-  fd += pi;
+  Matching::Process(fd, input_data, match_funs_);
 }
 
-void PerceptMatchingAlgorithm::InitializeData(FusionData & fd, const PerceptDataT & pd)
-{
-  for (auto & i : pd) {
-    AddData(fd, i);  // same  fd += pd;
-  }
-}
-
-bool PerceptMatchingAlgorithm::Match(MatchInfo & mi, const PerceptInfo & pi, float & min_distance)
+bool PerceptMatching::Match(MatchInfo & mi, const PerceptInfo & pi, float & min_distance)
 {
   bool is_match = false;
   // Step 1: Matching ROI 계산 - matching할 radar point를 탐색하는 영역 제한
@@ -47,6 +40,7 @@ bool PerceptMatchingAlgorithm::Match(MatchInfo & mi, const PerceptInfo & pi, flo
   int od_center_y = (int)pi.y + (int)(pi.height / (float)2 + 0.5);
 
   if (mi.cam_id == pi.obj_id) {
+    // if (mi.radar_id == pi.obj_id) {
     min_distance = -1;
 
     // For CarMaker
@@ -113,6 +107,9 @@ bool PerceptMatchingAlgorithm::Match(MatchInfo & mi, const PerceptInfo & pi, flo
       // @Debug
       mi.radar_longitudinal = pi.longitudinal;
       mi.radar_lateral = pi.lateral;
+      printf(
+        "[Fusion %d]New matching has occurred. R:%d C:%d\n", mi.fusion_id, mi.radar_id, pi.obj_id);
+      fflush(stdout);
     }
   }
 
@@ -120,14 +117,13 @@ bool PerceptMatchingAlgorithm::Match(MatchInfo & mi, const PerceptInfo & pi, flo
 }
 
 // 단일 개체에 대한 업데이트
-bool PerceptMatchingAlgorithm::Update(MatchInfo & mi, const PerceptInfo & pi)
+bool PerceptMatching::Update(MatchInfo & mi, const PerceptInfo & pi)
 {
   bool is_update = false;
   // Step 1: Checking case which estimation_id is same input_id
   if (mi.cam_id == pi.obj_id) {
     float match_box_area = (float)(mi.bbox.width * mi.bbox.height);
     float percept_box_area = (float)(pi.width * pi.height);
-
     // Obtain intersection area
     float min_x = (mi.bbox.x > pi.x) ? mi.bbox.x : pi.x;
     float min_y = (mi.bbox.y > pi.y) ? mi.bbox.y : pi.y;
@@ -141,6 +137,7 @@ bool PerceptMatchingAlgorithm::Update(MatchInfo & mi, const PerceptInfo & pi)
     float overlap_area = width * height;
 
     float iou = (overlap_area) / (match_box_area + percept_box_area - overlap_area) * 100;
+
     if (iou > 30) {
       // For CarMaker
       mi.class_id = pi.class_id;
@@ -169,68 +166,4 @@ bool PerceptMatchingAlgorithm::Update(MatchInfo & mi, const PerceptInfo & pi)
     }
   }
   return is_update;
-}
-
-void PerceptMatchingAlgorithm::MatchOrUpdate(FusionData & fd, const PerceptDataT & pd)
-{
-  int real_data_cnt = 0;
-  // counting number of real data
-  real_data_cnt = pd.GetSize();
-
-  for (auto & i : fd) {
-    i.match_flag = false;
-  }
-
-  // for (int real_index = 0; real_index < real_data_cnt; real_index++) {
-  for (auto & ri : pd) {
-    //  checking unmatch input data and any estimation
-    float min_dist = 999999.999999;
-    int prev_match_index = -1;
-    bool match_flag = false;
-    for (int match_index = 0; match_index < fd.GetSize(); match_index++)  // estimation buffer loop
-    {
-      bool is_match = false;
-
-      // Step 2: Checking that fusion flag of estimation data is same input data
-      // not using estimation data
-      if (
-        fd.data_[match_index].match_flag == false ||
-        (fd.data_[match_index].cam_id == -1 || fd.data_[match_index].radar_id == -1))
-      {
-        // When input data type is the same estimation sensor_type, update estimation data with
-        // input data
-        if (fd.data_[match_index].sensor_type == GetType()) {
-          is_match = Update(fd.data_[match_index], ri);
-          if (match_flag == true) is_match = true;
-        }
-        // When input data type is not same estimation sensor_type, matching estimation data with
-        // input data
-        else
-        {
-          is_match = Match(fd.data_[match_index], ri, min_dist);
-          // fd.data_[match_index].sensor_type = SensorType::kFusionData;
-          if (match_flag == true && is_match == true && prev_match_index != -1) {
-            if (fd.data_[prev_match_index].sensor_type == GetType())
-              fd.data_[prev_match_index].track_mode = TrackMode::kDelete;
-          }
-          if (match_flag == true) is_match = true;
-        }
-
-        if (is_match == true) {
-          if (prev_match_index != -1 && prev_match_index != match_index) {
-            fd.data_[prev_match_index].match_flag = false;
-            fd.data_[prev_match_index].unmatch_time = 10000;
-            prev_match_index = match_index;
-          }
-          match_flag = true;
-
-          if (min_dist == -1) break;
-        }
-      }
-    }
-
-    if (match_flag == false) {
-      AddData(fd, ri);
-    }
-  }
 }

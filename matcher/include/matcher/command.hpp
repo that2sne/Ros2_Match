@@ -2,7 +2,7 @@
 #define FUSION__MATCHER_COMMAND_HPP_
 
 #include "fusion_data.hpp"
-#include "matcher/algorithm/matching.hpp"
+#include "matcher/matching.hpp"
 namespace ebase
 {
 namespace fusion
@@ -16,20 +16,20 @@ public:
   virtual void exectue(FusionData & fd) = 0;
 };
 
-template <typename T, typename A>
+template<typename T, typename A>
 class CommandImpl : public Command
 {
 public:
-  CommandImpl(T && data) : data_(data) {}
-  virtual void exectue(FusionData & fd) { impl.Process(fd, data_); }
+  CommandImpl(T && data, const A & cmd) : data_(data), impl(cmd) {}
+  virtual void exectue(FusionData & fd) { impl->Process(fd, data_); }
 
 private:
   T data_;
   A impl;
 };
 
-using PerceptMathcingCommandT = CommandImpl<PerceptDataT, PerceptMatching>;
-using RadarMathcingCommandT = CommandImpl<RadarDataT, RadarMatching>;
+using PerceptMathcingCommand = CommandImpl<PerceptData, std::shared_ptr<PerceptMatching>>;
+using RadarMathcingCommand = CommandImpl<RadarData, std::shared_ptr<RadarMatching>>;
 }  // namespace matcher
 }  // namespace fusion
 }  // namespace ebase

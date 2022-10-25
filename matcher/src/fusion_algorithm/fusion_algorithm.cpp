@@ -6,4 +6,6 @@ FusionAlgorithm::FusionAlgorithm()
 {
 }
 
-FusionAlgorithm::~FusionAlgorithm() {}
+FusionAlgorithm::~FusionAlgorithm()
+{
+}

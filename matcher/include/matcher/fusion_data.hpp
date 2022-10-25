@@ -1,13 +1,13 @@
 #ifndef FUSION__MATCHER_FUSION_DATA_HPP_
 #define FUSION__MATCHER_FUSION_DATA_HPP_
 
-#include <vector>
-
 #include "common.hpp"
 #include "erae_fusion_msgs/msg/draw_info.hpp"
 #include "erae_fusion_msgs/msg/fusion_info_array.hpp"
 #include "fusion_algorithm/fusion_algorithm.hpp"
 #include "fusion_id_manager.hpp"
+
+#include <vector>
 namespace ebase
 {
 namespace fusion
@@ -22,11 +22,9 @@ class FusionData
 public:
   vector<struct MatchInfo> data_;
   FusionIdManager fusion_id_;
-  std::unique_ptr<FusionAlgorithm> fa_;
 
 public:
   FusionData();
-  void UpdateStatus(SensorType && type);
   size_t GetSize() { return data_.size(); }
   FusionData & operator+=(const RadarInfo & rd);    // 신규 추가
   FusionData & operator+=(const PerceptInfo & rd);  // 신규 추가

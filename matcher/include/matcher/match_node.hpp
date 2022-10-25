@@ -9,15 +9,8 @@
 #ifndef FUSION_MATCH_NODE_HPP_
 #define FUSION_MATCH_NODE_HPP_
 
-#include <algorithm>
-#include <cmath>
-#include <memory>
-#include <rclcpp/rclcpp.hpp>
-#include <string>
-#include <vector>
-
-#include "command.hpp"
 #include "erae_diag_msgs/msg/module_sts.hpp"
+#include "command.hpp"
 #include "ebase_node/ebase_node.hpp"
 #include "enum_class.hpp"
 
@@ -25,6 +18,13 @@
 #include "erae_fusion_msgs/msg/fusion_info_array.hpp"
 #include "erae_perception_msgs/msg/fcw.hpp"
 #include "erae_sensor_msgs/msg/mrr_info_array.hpp"
+#include <rclcpp/rclcpp.hpp>
+
+#include <algorithm>
+#include <cmath>
+#include <memory>
+#include <string>
+#include <vector>
 //#include "erae_vehicle_msgs/msg/vehicle_info.hpp"
 #include "matcher/fusion_data.hpp"
 #include "std_msgs/msg/string.hpp"
@@ -121,6 +121,10 @@ private:
 
   // New
   FusionData fusion_buf_;
+  std::shared_ptr<RadarMatching> radar_matching_;
+  std::shared_ptr<PerceptMatching> percept_matching_;
+
+  // uniquteSimpleFusion()
 };
 
 }  // namespace matcher
